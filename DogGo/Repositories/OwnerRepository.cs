@@ -111,5 +111,126 @@ namespace DogGo.Repositories
                 }
             }
         }
+
+        // Method to get owner by email from database
+        public Owner GetOwnerByEmail(string email)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"SELECT
+	                                        Id,
+	                                        Email,
+	                                        Name,
+	                                        Address,
+	                                        NeighborhoodId,
+	                                        Phone
+                                        FROM
+	                                        Owner
+                                        WHERE
+	                                        Email = @Email";
+
+                    cmd.Parameters.AddWithValue("@Email", email);
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        Owner owner = new Owner
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Email = reader.GetString(reader.GetOrdinal("Email")),
+                            Address = reader.GetString(reader.GetOrdinal("Address")),
+                            Phone = reader.GetString(reader.GetOrdinal("Phone")),
+                            NeighborhoodId = reader.GetInt32(reader.GetOrdinal("NeighborhoodId"))
+                        };
+
+                        reader.Close();
+                        return owner;
+                    }
+
+                    reader.Close();
+                    return null;
+                }
+            }
+        }
+
+        // Method to add new owner to database and assign new id
+        public void AddOwner(Owner owner)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"INSERT INTO Owner
+	                                        (Name, Email, Phone, Address, NeighborhoodId)
+                                        OUTPUT INSERTED.Id
+                                        VALUES
+	                                        (@Name, @Email, @Phone, @Address, @NeighborhoodId);";
+
+                    cmd.Parameters.AddWithValue("@Name", owner.Name);
+                    cmd.Parameters.AddWithValue("@Email", owner.Email);
+                    cmd.Parameters.AddWithValue("@Phone", owner.Phone);
+                    cmd.Parameters.AddWithValue("@Address", owner.Address);
+                    cmd.Parameters.AddWithValue("@NeighborhoodId", owner.NeighborhoodId);
+
+                    int id = (int)cmd.ExecuteScalar();
+
+                    owner.Id = id;
+                }
+            }
+        }
+
+        // Method to update existing owner in database
+        public void UpdateOwner(Owner owner)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"UPDATE Owner
+                                        SET
+	                                        Name = @Name,
+	                                        Email = @Email,
+	                                        Address = @Address,
+	                                        Phone = @Phone,
+	                                        NeighborhoodId = @NeighborhoodId
+                                        WHERE Id = @Id";
+
+                    cmd.Parameters.AddWithValue("@Name", owner.Name);
+                    cmd.Parameters.AddWithValue("@Email", owner.Email);
+                    cmd.Parameters.AddWithValue("@Phone", owner.Phone);
+                    cmd.Parameters.AddWithValue("@Address", owner.Address);
+                    cmd.Parameters.AddWithValue("@NeighborhoodId", owner.NeighborhoodId);
+                    cmd.Parameters.AddWithValue("@Id", owner.Id);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // Method to delete existing owner from database
+        public void DeleteOwner(int ownerId)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"DELETE FROM Owner
+                                        WHERE Id = @Id";
+
+                    cmd.Parameters.AddWithValue("@Id", ownerId);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }
