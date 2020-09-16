@@ -39,24 +39,28 @@ namespace DogGo.Controllers
             return View(owner);
         }
 
-        // GET: OwnersController/Create
+        // GET: Owners/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: OwnersController/Create
+        // POST: Owners/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Owner owner)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                _ownerRepo.AddOwner(owner);
+
+                // If successfull returns user to index or list view
+                return RedirectToAction("Index");
             }
-            catch
+            catch(Exception ex)
             {
-                return View();
+                // Returns user to form view so they can try again
+                return View(owner);
             }
         }
 
