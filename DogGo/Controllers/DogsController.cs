@@ -45,7 +45,7 @@ namespace DogGo.Controllers
             return View();
         }
 
-        // POST: DogsController/Create
+        // POST: Dogs/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(Dog dog)
@@ -62,45 +62,58 @@ namespace DogGo.Controllers
             }
         }
 
-        // GET: DogsController/Edit/5
+        // GET: Dogs/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            Dog dog = _dogRepo.GetDogById(id);
+
+            if (dog == null)
+            {
+                NotFound();
+            }
+
+            return View(dog);
         }
 
-        // POST: DogsController/Edit/5
+        // POST: Dogs/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, Dog dog)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                _dogRepo.UpdateDog(dog);
+
+                return RedirectToAction("Index");
             }
-            catch
+            catch(Exception ex)
             {
-                return View();
+                return View(dog);
             }
         }
 
-        // GET: DogsController/Delete/5
+        // GET: Dogs/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            Dog dog = _dogRepo.GetDogById(id);
+
+            return View(dog);
         }
 
-        // POST: DogsController/Delete/5
+        // POST: Dogs/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Delete(int id, Dog dog)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                _dogRepo.DeleteDog(id);
+
+                return RedirectToAction("Index");
             }
-            catch
+            catch(Exception ex)
             {
-                return View();
+                return View(dog);
             }
         }
     }

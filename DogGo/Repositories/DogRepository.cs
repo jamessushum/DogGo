@@ -1,6 +1,7 @@
 ﻿using DogGo.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -159,6 +160,71 @@ namespace DogGo.Repositories
                     int id = (int)cmd.ExecuteScalar();
 
                     dog.Id = id;
+                }
+            }
+        }
+
+        // Method updates existing dog in database
+        public void UpdateDog(Dog dog)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"UPDATE Dog
+                                        SET
+	                                        Name = @Name,
+	                                        OwnerId = @OwnerId,
+	                                        Breed = @Breed,
+	                                        Notes = @Notes,
+	                                        ImageUrl = @ImageUrl
+                                        WHERE Id = @Id";
+
+                    cmd.Parameters.AddWithValue("@Name", dog.Name);
+                    cmd.Parameters.AddWithValue("@OwnerId", dog.OwnerId);
+                    cmd.Parameters.AddWithValue("@Breed", dog.Breed);
+                    cmd.Parameters.AddWithValue("@Id", dog.Id);
+
+                    if (dog.Notes == null)
+                    {
+                        cmd.Parameters.AddWithValue("@Notes", DBNull.Value);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@Notes", dog.Notes);
+                    }
+
+                    if (dog.ImageUrl == null)
+                    {
+                        cmd.Parameters.AddWithValue("@ImageUrl", DBNull.Value);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@ImageUrl", dog.ImageUrl);
+                    }
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // Method to delete existing dog from database
+        public void DeleteDog(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"DELETE FROM Dog
+                                        WHERE Id = @Id";
+
+                    cmd.Parameters.AddWithValue("@Id", id);
+
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
