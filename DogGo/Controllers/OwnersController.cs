@@ -79,7 +79,13 @@ namespace DogGo.Controllers
             catch(Exception ex)
             {
                 // Returns user to form view so they can try again
-                return View(owner);
+                OwnerFormViewModel vm = new OwnerFormViewModel()
+                {
+                    Owner = owner,
+                    Neighborhoods = _neighborhoodRepo.GetAllNeighborhoods()
+                };
+
+                return View(vm);
             }
         }
 
@@ -88,12 +94,20 @@ namespace DogGo.Controllers
         {
             Owner owner = _ownerRepo.GetOwnerById(id);
 
+            List<Neighborhood> neighborhoods = _neighborhoodRepo.GetAllNeighborhoods();
+
+            OwnerFormViewModel vm = new OwnerFormViewModel()
+            {
+                Owner = owner,
+                Neighborhoods = neighborhoods
+            };
+
             if (owner == null)
             {
                 return NotFound();
             }
 
-            return View(owner);
+            return View(vm);
         }
 
         // POST: Owners/Edit/5
@@ -109,7 +123,13 @@ namespace DogGo.Controllers
             }
             catch(Exception ex)
             {
-                return View(owner);
+                OwnerFormViewModel vm = new OwnerFormViewModel()
+                {
+                    Owner = owner,
+                    Neighborhoods = _neighborhoodRepo.GetAllNeighborhoods()
+                };
+
+                return View(vm);
             }
         }
 
