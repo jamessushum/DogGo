@@ -30,6 +30,14 @@ namespace DogGo.Controllers
         {
             int ownerId = GetCurrentUserId();
 
+            // If no owner logged-in return list of all walkers otherwise return list of walkers in owner's neighborhood
+            if (ownerId == 0)
+            {
+                List<Walker> walker = _walkerRepo.GetAllWalkers();
+
+                return View(walker);
+            }
+
             // Get owner object with owner id to access neighborhoodId
             Owner owner = _ownerRepo.GetOwnerById(ownerId);
 
@@ -125,6 +133,13 @@ namespace DogGo.Controllers
         private int GetCurrentUserId()
         {
             string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // If id is null return int value 0
+            if (id == null)
+            {
+                return 0;
+            }
+
             return int.Parse(id);
         }
     }
