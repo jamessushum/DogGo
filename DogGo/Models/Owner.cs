@@ -20,7 +20,7 @@ namespace DogGo.Models
         public string Email { get; set; }
 
         [Required]
-        [StringLength(55, MinimumLength =5)]
+        [StringLength(55, MinimumLength = 5)]
         public string Address { get; set; }
 
         [Required]
