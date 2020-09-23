@@ -16,13 +16,15 @@ namespace DogGo.Controllers
         private readonly IWalkerRepository _walkerRepo;
         private readonly IWalksRepository _walksRepo;
         private readonly IOwnerRepository _ownerRepo;
+        private readonly INeighborhoodRepository _neighborhoodRepo;
 
         // ASP.NET will give us an instance of our Walker Repository. This is called "Dependency Injection"
-        public WalkersController(IWalkerRepository walkerRepository, IWalksRepository walksRepository, IOwnerRepository ownerRepository)
+        public WalkersController(IWalkerRepository walkerRepository, IWalksRepository walksRepository, IOwnerRepository ownerRepository, INeighborhoodRepository neighborhoodRepository)
         {
             _walkerRepo = walkerRepository;
             _walksRepo = walksRepository;
             _ownerRepo = ownerRepository;
+            _neighborhoodRepo = neighborhoodRepository;
         }
 
         // GET: Walkers
@@ -66,24 +68,40 @@ namespace DogGo.Controllers
             return View(vm);
         }
 
-        // GET: WalkersController/Create
+        // GET: Walkers/Create
         public ActionResult Create()
         {
-            return View();
+            List<Neighborhood> neighborhoods = _neighborhoodRepo.GetAllNeighborhoods();
+
+            WalkerFormViewModel vm = new WalkerFormViewModel()
+            {
+                Walker = new Walker(),
+                Neighborhoods = neighborhoods
+            };
+
+            return View(vm);
         }
 
-        // POST: WalkersController/Create
+        // POST: Walkers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Walker walker)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                _walkerRepo.AddWalker(walker);
+
+                return RedirectToAction("Index");
             }
-            catch
+            catch(Exception ex)
             {
-                return View();
+                WalkerFormViewModel vm = new WalkerFormViewModel()
+                {
+                    Walker = walker,
+                    Neighborhoods = _neighborhoodRepo.GetAllNeighborhoods()
+                };
+
+                return View(vm);
             }
         }
 
